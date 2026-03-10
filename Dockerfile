@@ -57,33 +57,33 @@ RUN cat > /start.sh << 'EOF'
 cat > /var/www/html/config.php << 'PHPEOF'
 <?php
 // Read environment variables
-\$baseUrl = getenv('BASE_URL') ?: ((!empty(\$_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (\$_SERVER['HTTP_HOST'] ?? 'localhost'));
-\$debugMode = getenv('DEBUG_MODE') ?: 'FALSE';
-\$dbHost = getenv('DB_HOST') ?: 'localhost';
-\$dbName = getenv('DB_NAME') ?: 'easyappointments';
-\$dbUsername = getenv('DB_USERNAME') ?: 'root';
-\$dbPassword = getenv('DB_PASSWORD') ?: '';
+$baseUrl = getenv('BASE_URL') ?: ((!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+$debugMode = getenv('DEBUG_MODE') ?: 'FALSE';
+$dbHost = getenv('DB_HOST') ?: 'localhost';
+$dbName = getenv('DB_NAME') ?: 'easyappointments';
+$dbUsername = getenv('DB_USERNAME') ?: 'root';
+$dbPassword = getenv('DB_PASSWORD') ?: '';
 
 class Config
 {
-    public static \$BASE_URL;
-    public static \$LANGUAGE = 'english';
-    public static \$DEBUG_MODE;
-    public static \$DB_HOST;
-    public static \$DB_NAME;
-    public static \$DB_USERNAME;
-    public static \$DB_PASSWORD;
-    public static \$GOOGLE_SYNC_FEATURE = false;
-    public static \$GOOGLE_CLIENT_ID = '';
-    public static \$GOOGLE_CLIENT_SECRET = '';
+    public static $BASE_URL;
+    public static $LANGUAGE = 'english';
+    public static $DEBUG_MODE;
+    public static $DB_HOST;
+    public static $DB_NAME;
+    public static $DB_USERNAME;
+    public static $DB_PASSWORD;
+    public static $GOOGLE_SYNC_FEATURE = false;
+    public static $GOOGLE_CLIENT_ID = '';
+    public static $GOOGLE_CLIENT_SECRET = '';
 }
 
-Config::\$BASE_URL = \$baseUrl;
-Config::\$DEBUG_MODE = (\$debugMode === 'TRUE' || \$debugMode === 'true' || \$debugMode === '1');
-Config::\$DB_HOST = \$dbHost;
-Config::\$DB_NAME = \$dbName;
-Config::\$DB_USERNAME = \$dbUsername;
-Config::\$DB_PASSWORD = \$dbPassword;
+Config::$BASE_URL = $baseUrl;
+Config::$DEBUG_MODE = ($debugMode === 'TRUE' || $debugMode === 'true' || $debugMode === '1');
+Config::$DB_HOST = $dbHost;
+Config::$DB_NAME = $dbName;
+Config::$DB_USERNAME = $dbUsername;
+Config::$DB_PASSWORD = $dbPassword;
 PHPEOF
 
 chown www-data:www-data /var/www/html/config.php
