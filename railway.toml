@@ -2,6 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 300
+# Healthcheck disabled temporarily - EasyAppointments needs installation first
+# healthcheckPath = "/"
+# healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
