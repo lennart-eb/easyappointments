@@ -33,6 +33,13 @@ server {
     root /var/www/html;
     index index.php index.html;
 
+    # Serve static files directly
+    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
     location / {
         try_files $uri $uri/ /index.php?$args;
     }
