@@ -4,7 +4,7 @@ FROM php:8.2-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx git zip unzip curl libpng-dev libjpeg-dev libfreetype6-dev \
+    nginx git zip unzip curl libpng-dev libjpeg-dev libfreetype6-dev nodejs npm \
     && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
     mysqli pdo pdo_mysql gd \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
@@ -15,6 +15,9 @@ COPY . /var/www/html/
 
 # Install dependencies
 RUN cd /var/www/html && composer install --no-dev --optimize-autoloader
+
+# Build frontend assets (compile SCSS, minify JS/CSS)
+RUN cd /var/www/html && npm install && npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
@@ -33,18 +36,16 @@ server {
     root /var/www/html;
     index index.php index.html;
 
-    # Serve static files directly
+    # Serve static files directly (higher priority)
     location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
         try_files $uri =404;
+        access_log off;
     }
 
-    location / {
-        try_files $uri $uri/ /index.php?$args;
-    }
-
-    location ~ ^.+\.php {
+    # PHP files - higher priority than root location
+    location ~ [^/]\.php(/|$) {
         fastcgi_pass 127.0.0.1:9000;
         fastcgi_split_path_info ^(.+?\.php)(/.*)$;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
@@ -53,6 +54,11 @@ server {
         fastcgi_buffer_size 32k;
         fastcgi_index index.php;
         include fastcgi_params;
+    }
+
+    # Root location - try files first, then route to index.php
+    location / {
+        try_files $uri $uri/ /index.php?$args;
     }
 
     location ~ /\.ht {
