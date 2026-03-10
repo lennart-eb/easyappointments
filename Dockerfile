@@ -1,5 +1,7 @@
 FROM php:8.2-fpm
 
+# Cache buster - force Railway rebuild: 2026-03-10-09-45
+
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx git zip unzip curl libpng-dev libjpeg-dev libfreetype6-dev \
