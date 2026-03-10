@@ -1,7 +1,7 @@
 FROM php:8.2-fpm
 
-# Cache buster - change this timestamp to force rebuild
-ARG CACHE_BUST=1773129628
+# Cache buster - change this timestamp to force rebuild - Updated for Railway fix
+ARG CACHE_BUST=1773130000
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx git zip unzip curl \
