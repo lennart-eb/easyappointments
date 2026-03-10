@@ -54,36 +54,38 @@ EOF
 # Create config.php at startup
 RUN cat > /start.sh << 'EOF'
 #!/bin/bash
-cat > /var/www/html/config.php << 'PHPEOF'
-<?php
-// Read environment variables
-$baseUrl = getenv('BASE_URL') ?: ((!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
-$debugMode = getenv('DEBUG_MODE') ?: 'FALSE';
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbName = getenv('DB_NAME') ?: 'easyappointments';
-$dbUsername = getenv('DB_USERNAME') ?: 'root';
-$dbPassword = getenv('DB_PASSWORD') ?: '';
 
+# Get values from environment or defaults
+BASE_URL_VAL="${BASE_URL:-http://localhost}"
+DEBUG_MODE_VAL="${DEBUG_MODE:-FALSE}"
+DB_HOST_VAL="${DB_HOST:-localhost}"
+DB_NAME_VAL="${DB_NAME:-easyappointments}"
+DB_USERNAME_VAL="${DB_USERNAME:-root}"
+DB_PASSWORD_VAL="${DB_PASSWORD:-}"
+
+# Convert DEBUG_MODE to boolean
+if [[ "$DEBUG_MODE_VAL" == "TRUE" || "$DEBUG_MODE_VAL" == "true" || "$DEBUG_MODE_VAL" == "1" ]]; then
+    DEBUG_BOOL="true"
+else
+    DEBUG_BOOL="false"
+fi
+
+# Generate config.php with actual values
+cat > /var/www/html/config.php << PHPEOF
+<?php
 class Config
 {
-    public static $BASE_URL;
-    public static $LANGUAGE = 'english';
-    public static $DEBUG_MODE;
-    public static $DB_HOST;
-    public static $DB_NAME;
-    public static $DB_USERNAME;
-    public static $DB_PASSWORD;
-    public static $GOOGLE_SYNC_FEATURE = false;
-    public static $GOOGLE_CLIENT_ID = '';
-    public static $GOOGLE_CLIENT_SECRET = '';
+    const BASE_URL = '$BASE_URL_VAL';
+    const LANGUAGE = 'english';
+    const DEBUG_MODE = $DEBUG_BOOL;
+    const DB_HOST = '$DB_HOST_VAL';
+    const DB_NAME = '$DB_NAME_VAL';
+    const DB_USERNAME = '$DB_USERNAME_VAL';
+    const DB_PASSWORD = '$DB_PASSWORD_VAL';
+    const GOOGLE_SYNC_FEATURE = false;
+    const GOOGLE_CLIENT_ID = '';
+    const GOOGLE_CLIENT_SECRET = '';
 }
-
-Config::$BASE_URL = $baseUrl;
-Config::$DEBUG_MODE = ($debugMode === 'TRUE' || $debugMode === 'true' || $debugMode === '1');
-Config::$DB_HOST = $dbHost;
-Config::$DB_NAME = $dbName;
-Config::$DB_USERNAME = $dbUsername;
-Config::$DB_PASSWORD = $dbPassword;
 PHPEOF
 
 chown www-data:www-data /var/www/html/config.php
