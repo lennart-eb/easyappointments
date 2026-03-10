@@ -18,6 +18,7 @@ RUN cd /var/www/html && composer install --no-dev --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 777 /var/www/html/storage && \
     mkdir -p /var/log/nginx && \
     ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
@@ -56,6 +57,14 @@ EOF
 # Create config.php at startup
 RUN cat > /start.sh << 'EOF'
 #!/bin/bash
+set -e
+
+echo "=== Starting EasyAppointments ==="
+echo "Environment variables:"
+echo "BASE_URL: ${BASE_URL:-not set}"
+echo "DB_HOST: ${DB_HOST:-not set}"
+echo "DB_NAME: ${DB_NAME:-not set}"
+echo "DEBUG_MODE: ${DEBUG_MODE:-not set}"
 
 # Get values from environment or defaults
 BASE_URL_VAL="${BASE_URL:-http://localhost}"
@@ -90,11 +99,17 @@ class Config
 }
 PHPEOF
 
+echo "config.php generated successfully"
+cat /var/www/html/config.php
+echo ""
+
 chown www-data:www-data /var/www/html/config.php
 
-# Start PHP-FPM and nginx
+echo "Starting PHP-FPM..."
 php-fpm -D
-nginx -g 'daemon off;'
+
+echo "Starting nginx..."
+exec nginx -g 'daemon off;'
 EOF
 
 RUN chmod +x /start.sh
