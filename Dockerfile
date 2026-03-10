@@ -2,9 +2,9 @@ FROM php:8.2-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx git zip unzip curl \
+    nginx git zip unzip curl libpng-dev libjpeg-dev libfreetype6-dev \
     && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-    mysqli pdo pdo_mysql \
+    mysqli pdo pdo_mysql gd \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
