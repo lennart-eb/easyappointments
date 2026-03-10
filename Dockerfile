@@ -53,32 +53,34 @@ RUN cat > /start.sh << 'EOF'
 #!/bin/bash
 cat > /var/www/html/config.php << 'PHPEOF'
 <?php
-// Define BASE_URL using define() to allow runtime expressions
-$baseUrl = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-define('BASE_URL', $baseUrl);
-define('LANGUAGE', 'english');
-define('DEBUG_MODE', false);
-define('DB_HOST', getenv('MYSQLHOST') ?: 'localhost');
-define('DB_NAME', getenv('MYSQLDATABASE') ?: 'easyappointments');
-define('DB_USERNAME', getenv('MYSQLUSER') ?: 'user');
-define('DB_PASSWORD', getenv('MYSQLPASSWORD') ?: 'password');
-define('GOOGLE_SYNC_FEATURE', false);
-define('GOOGLE_CLIENT_ID', '');
-define('GOOGLE_CLIENT_SECRET', '');
+// Get runtime values
+\$baseUrl = (!empty(\$_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (\$_SERVER['HTTP_HOST'] ?? 'localhost');
+\$dbHost = getenv('MYSQLHOST') ?: 'localhost';
+\$dbName = getenv('MYSQLDATABASE') ?: 'easyappointments';
+\$dbUsername = getenv('MYSQLUSER') ?: 'user';
+\$dbPassword = getenv('MYSQLPASSWORD') ?: 'password';
 
 class Config
 {
-    const BASE_URL = BASE_URL;
-    const LANGUAGE = LANGUAGE;
-    const DEBUG_MODE = DEBUG_MODE;
-    const DB_HOST = DB_HOST;
-    const DB_NAME = DB_NAME;
-    const DB_USERNAME = DB_USERNAME;
-    const DB_PASSWORD = DB_PASSWORD;
-    const GOOGLE_SYNC_FEATURE = GOOGLE_SYNC_FEATURE;
-    const GOOGLE_CLIENT_ID = GOOGLE_CLIENT_ID;
-    const GOOGLE_CLIENT_SECRET = GOOGLE_CLIENT_SECRET;
+    // Static properties with runtime values
+    public static \$BASE_URL;
+    public static \$LANGUAGE = 'english';
+    public static \$DEBUG_MODE = false;
+    public static \$DB_HOST;
+    public static \$DB_NAME;
+    public static \$DB_USERNAME;
+    public static \$DB_PASSWORD;
+    public static \$GOOGLE_SYNC_FEATURE = false;
+    public static \$GOOGLE_CLIENT_ID = '';
+    public static \$GOOGLE_CLIENT_SECRET = '';
 }
+
+// Set runtime values
+Config::\$BASE_URL = \$baseUrl;
+Config::\$DB_HOST = \$dbHost;
+Config::\$DB_NAME = \$dbName;
+Config::\$DB_USERNAME = \$dbUsername;
+Config::\$DB_PASSWORD = \$dbPassword;
 PHPEOF
 chown www-data:www-data /var/www/html/config.php
 php-fpm -D
