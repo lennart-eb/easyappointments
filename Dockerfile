@@ -1,5 +1,8 @@
 FROM php:8.2-fpm
 
+# Cache buster - change this timestamp to force rebuild
+ARG CACHE_BUST=1773129628
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx git zip unzip curl \
     && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
