@@ -53,19 +53,20 @@ RUN cat > /start.sh << 'EOF'
 #!/bin/bash
 cat > /var/www/html/config.php << 'PHPEOF'
 <?php
-// Get runtime values
-\$baseUrl = (!empty(\$_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (\$_SERVER['HTTP_HOST'] ?? 'localhost');
-\$dbHost = getenv('MYSQLHOST') ?: 'localhost';
-\$dbName = getenv('MYSQLDATABASE') ?: 'easyappointments';
-\$dbUsername = getenv('MYSQLUSER') ?: 'user';
-\$dbPassword = getenv('MYSQLPASSWORD') ?: 'password';
+// Read environment variables set by Railway
+\$baseUrl = getenv('BASE_URL') ?: ((!empty(\$_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (\$_SERVER['HTTP_HOST'] ?? 'localhost'));
+\$debugMode = getenv('DEBUG_MODE') ?: 'FALSE';
+\$dbHost = getenv('DB_HOST') ?: 'localhost';
+\$dbName = getenv('DB_NAME') ?: 'easyappointments';
+\$dbUsername = getenv('DB_USERNAME') ?: 'user';
+\$dbPassword = getenv('DB_PASSWORD') ?: 'password';
 
 class Config
 {
     // Static properties with runtime values
     public static \$BASE_URL;
     public static \$LANGUAGE = 'english';
-    public static \$DEBUG_MODE = false;
+    public static \$DEBUG_MODE;
     public static \$DB_HOST;
     public static \$DB_NAME;
     public static \$DB_USERNAME;
@@ -75,8 +76,9 @@ class Config
     public static \$GOOGLE_CLIENT_SECRET = '';
 }
 
-// Set runtime values
+// Set runtime values from environment
 Config::\$BASE_URL = \$baseUrl;
+Config::\$DEBUG_MODE = (\$debugMode === 'TRUE' || \$debugMode === 'true' || \$debugMode === '1');
 Config::\$DB_HOST = \$dbHost;
 Config::\$DB_NAME = \$dbName;
 Config::\$DB_USERNAME = \$dbUsername;
